@@ -1,0 +1,502 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Donate to Camp Stomping Ground — choose one-time or monthly." />
+  <title>Donate • Camp Stomping Ground</title>
+
+  <style>
+    :root{
+      --frame: rgba(255,255,255,.86);
+      --frame-border: rgba(20,20,20,.14);
+      --ink: #141414;
+
+      --step-label: .78rem;
+      --step-desc: clamp(1.05rem, 1.2vw, 1.2rem);
+      --step-title: clamp(2.7rem, 5.8vw, 5.2rem);
+      --pad: clamp(1.25rem, 3.2vw, 3rem);
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:#fff;
+      Overflow:visible;
+    }
+
+    /* Full-viewport split */
+    .split{
+      height: 100vh;
+      width: 100vw;
+      display:grid;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 900px){
+      .split{ grid-template-columns: 1fr 1fr; }
+    }
+
+    .panel{
+      position: rabsolute;
+      Overflow:hidden;
+      text-decoration:none;
+      color:#fff;
+      min-height:50vh;
+      isolation:isolate;
+
+      background-image: var(--bgimg);
+      background-size: cover;
+      background-position: center;
+      transform: translateZ(0);
+
+      /* mouse position defaults */
+      --mx: 50%;
+      --my: 50%;
+
+      /* Aurora intensity knobs */
+      --auroraOpacity: 0;
+      --auroraGlow: .55;   /* overall strength */
+      --auroraSoft: 1.0;   /* blur-ish by spreading gradients */
+      --auroraSpeed: 18s;  /* slow drift */
+    }
+
+    @media (min-width: 900px){
+      .panel{ min-height: 100vh; }
+      .panel.left{ border-right: 1px solid rgba(255,255,255,.22); }
+    }
+
+    /* Legibility overlay (static) */
+    .shade{
+      position:absolute;
+      inset:0;
+      z-index:-4;
+      background:
+        radial-gradient(900px 600px at 30% 10%, rgba(255,255,255,.12), transparent 60%),
+        linear-gradient(180deg, rgba(0,0,0,.06), rgba(0,0,0,.46) 68%, rgba(0,0,0,.64));
+      pointer-events:none;
+    }
+
+    /* Aurora layers:
+       - ::before: aurora ribbons (slow drift)
+       - ::after: cursor hotspot + subtle noise (follows mouse) */
+    .panel::before{
+      content:"";
+      position:absolute;
+      inset:-20%;
+      z-index:-2;
+      pointer-events:none;
+
+      opacity: var(--auroraOpacity);
+      transition: opacity 240ms ease;
+
+      /* Aurora ribbons: layered, soft, slow */
+      background:
+        radial-gradient(60% 45% at 20% 30%,
+          rgba(120, 255, 214, .30) 0%,
+          rgba(120, 255, 214, 0) 60%),
+        radial-gradient(55% 40% at 75% 35%,
+          rgba(120, 180, 255, .28) 0%,
+          rgba(120, 180, 255, 0) 62%),
+        radial-gradient(50% 38% at 55% 70%,
+          rgba(196, 120, 255, .26) 0%,
+          rgba(196, 120, 255, 0) 60%),
+        radial-gradient(65% 50% at 35% 80%,
+          rgba(255, 200, 120, .18) 0%,
+          rgba(255, 200, 120, 0) 62%),
+        /* Ribbon-ish band */
+        linear-gradient(120deg,
+          rgba(120,255,214,0) 0%,
+          rgba(120,255,214,.22) 18%,
+          rgba(120,180,255,.22) 36%,
+          rgba(196,120,255,.20) 54%,
+          rgba(255,200,120,.14) 72%,
+          rgba(255,200,120,0) 100%);
+      mix-blend-mode: screen;
+      filter: saturate(1.2) contrast(1.05);
+
+      animation: auroraDrift var(--auroraSpeed) ease-in-out infinite alternate;
+    }
+
+    @keyframes auroraDrift{
+      0%   { transform: translate3d(-2%, -1%, 0) rotate(-2deg); }
+      100% { transform: translate3d( 2%,  1%, 0) rotate( 2deg); }
+    }
+
+    .panel::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:-1;
+      pointer-events:none;
+
+      opacity: var(--auroraOpacity);
+      transition: opacity 240ms ease;
+
+      /* Cursor-responsive hotspot + fine noise */
+      background:
+        radial-gradient(
+          520px 380px at var(--mx) var(--my),
+          rgba(255,255,255,.14) 0%,
+          rgba(120,255,214,.18) 18%,
+          rgba(120,180,255,.18) 34%,
+          rgba(196,120,255,.16) 52%,
+          rgba(255,200,120,.10) 68%,
+          rgba(0,0,0,0) 78%
+        ),
+        radial-gradient(
+          900px 700px at calc(var(--mx) + 10%) calc(var(--my) - 8%),
+          rgba(120,180,255,.10) 0%,
+          rgba(120,180,255,0) 60%
+        ),
+        radial-gradient(
+          900px 700px at calc(var(--mx) - 12%) calc(var(--my) + 10%),
+          rgba(196,120,255,.10) 0%,
+          rgba(196,120,255,0) 62%
+        ),
+        /* subtle grain */
+        repeating-linear-gradient(
+          0deg,
+          rgba(255,255,255,.03) 0px,
+          rgba(255,255,255,.03) 1px,
+          rgba(255,255,255,0) 2px,
+          rgba(255,255,255,0) 6px
+        );
+
+      mix-blend-mode: screen;
+      filter: saturate(1.25) contrast(1.05);
+    }
+
+    /* Activate aurora on hover/focus (desktop) */
+    @media (hover:hover) and (pointer:fine){
+      .panel:hover{
+        /* gentle photographic lift, not flashy */
+        filter: saturate(1.05) contrast(1.03);
+      }
+      .panel:hover{ --auroraOpacity: .95; }
+    }
+
+    /* Keyboard parity */
+    .panel:focus-visible{
+      outline: 5px solid rgba(255,255,255,.78);
+      outline-offset: -5px;
+      --auroraOpacity: .95;
+    }
+
+    /* Content layout: copy centered, CTA pinned bottom */
+    .content{
+      height:90%;
+      width:90%;
+      padding: var(--pad);
+      display:flex;
+      flex-direction: column;
+    }
+    .copy{
+      flex: 1;
+      display:flex;
+      flex-direction: column;
+      justify-content: center;
+      max-width: min(64ch, 100%);
+      padding-bottom: clamp(1.2rem, 2.4vw, 2.2rem);
+    }
+
+    .label{
+      display:inline-flex;
+      align-items:center;
+      gap:.6rem;
+      font-weight: 900;
+      letter-spacing: .34em;
+      text-transform: uppercase;
+      font-size: var(--step-label);
+      color: rgba(255,255,255,.92);
+      margin-bottom: 1rem;
+    }
+    .dot{
+      width:10px; height:10px; border-radius:999px;
+      background:#fff;
+      opacity:.92;
+    }
+
+    /* Text morph (transform into hover text) */
+    .swap{
+      display:grid;
+      grid-template-areas: "stack";
+      perspective: 900px;
+    }
+    .swap > *{
+      grid-area: stack;
+      transform-origin: 50% 50%;
+      backface-visibility: hidden;
+      will-change: transform, opacity, filter;
+    }
+    .swap.titleSwap{ min-height: calc(var(--step-title) * 1.05); margin-bottom: .9rem; }
+    .swap.descSwap{ min-height: calc(var(--step-desc) * 2.8); }
+
+    .title{
+      margin:0;
+      font-size: var(--step-title);
+      letter-spacing: -0.02em;
+      line-height: 1.02;
+      max-width: 18ch;
+    }
+    .desc{
+      margin:0;
+      font-size: var(--step-desc);
+      line-height: 1.3;
+      color: rgba(255,255,255,.92);
+      max-width: 60ch;
+    }
+
+    .default{
+      opacity: 1;
+      transform: translateY(0) rotateX(0deg);
+      filter: blur(0);
+      transition:
+        transform 520ms cubic-bezier(.2,.9,.2,1),
+        opacity 260ms ease,
+        filter 260ms ease;
+    }
+    .hover{
+      opacity: 0;
+      transform: translateY(18px) rotateX(-70deg);
+      filter: blur(2px);
+      transition:
+        transform 520ms cubic-bezier(.2,.9,.2,1),
+        opacity 260ms ease,
+        filter 260ms ease;
+    }
+
+    @media (hover:hover) and (pointer:fine){
+      .panel:hover .default{
+        opacity: 0;
+        transform: translateY(-18px) rotateX(70deg);
+        filter: blur(2px);
+      }
+      .panel:hover .hover{
+        opacity: 1;
+        transform: translateY(0) rotateX(0deg);
+        filter: blur(0);
+      }
+    }
+    .panel:focus-visible .default{
+      opacity: 0;
+      transform: translateY(-18px) rotateX(70deg);
+      filter: blur(2px);
+    }
+    .panel:focus-visible .hover{
+      opacity: 1;
+      transform: translateY(0) rotateX(0deg);
+      filter: blur(0);
+    }
+
+    /* CTA pinned to bottom (static) */
+    .ctaRow{
+      margin-top: auto;
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content: space-between;
+      gap:.75rem;
+      padding: .95rem 1.15rem;
+      border-radius: 999px;
+      background: rgba(255,255,255,.16);
+      border: 1px solid rgba(255,255,255,.28);
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: .22em;
+      font-size: .82rem;
+      color:#fff;
+      white-space: nowrap;
+      width: fit-content;
+    }
+
+    /* Top-left brand chip (optional) */
+    .corner{
+      position: absolute;
+      z-index: 5;
+      top: 14px;
+      left: 14px;
+      display:flex;
+      align-items: baseline;
+      gap: .75rem;
+      padding: .6rem .85rem;
+      border-radius: 999px;
+      background: var(--frame);
+      color: var(--ink);
+      border: 1px solid var(--frame-border);
+      backdrop-filter: blur(10px);
+      text-decoration:none;
+      font-weight: 900;
+      letter-spacing: .01em;
+      white-space: nowrap;
+    }
+    .corner small{
+      font-weight: 800;
+      letter-spacing: .32em;
+      text-transform: uppercase;
+      font-size: .7rem;
+      opacity: .75;
+    }
+
+    /* Top-right chips */
+    .help{
+      position: fixed;
+      z-index: 5;
+      right: 14px;
+      top: 14px;
+      display:flex;
+      gap: .65rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      align-items: center;
+    }
+    .chip{
+      background: var(--frame);
+      color: var(--ink);
+      border: 1px solid var(--frame-border);
+      border-radius: 999px;
+      padding: .55rem .8rem;
+      text-decoration:none;
+      font-size: .92rem;
+      backdrop-filter: blur(10px);
+      white-space: nowrap;
+    }
+    .chip:focus-visible{
+      outline: 3px solid rgba(20,20,20,.35);
+      outline-offset: 2px;
+    }
+
+    /* Mobile: allow scroll so chips aren’t trapped */
+    @media (max-width: 520px){
+      body{ overflow:auto; }
+    }
+
+    /* Reduced motion: no drift, no cursor tracking dependency */
+    @media (prefers-reduced-motion: reduce){
+      .panel::before{
+        animation: none !important;
+      }
+      .default, .hover{
+        transition: none !important;
+      }
+    }
+
+    .sr-only{
+      position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:visible;
+      clip: rect(0,0,0,0); white-space:nowrap; border:0;
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <main class="split" aria-label="Choose how to donate">
+    <!-- ONE-TIME -->
+    <a
+      class="panel left"
+      style="--bgimg: url('https://images.squarespace-cdn.com/content/v1/583f73fc3e00bebc1c9adc7f/1486080507145-LVZM0DYK4O51NXE9WLQ7/puddle%2Bplay%2Bsmaller.jpeg');"
+      href="https://campstompingground.app.neoncrm.com/forms/your-gift-matters"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Make a one-time donation (opens secure form)"
+    >
+      <span class="shade" aria-hidden="true"></span>
+
+      <div class="content">
+        <div class="copy">
+          <div class="label">One-time <span class="dot" aria-hidden="true"></span></div>
+
+          <div class="swap titleSwap" aria-hidden="true">
+            <h1 class="title default">Give once.</h1>
+            <h1 class="title hover">Make today possible.</h1>
+          </div>
+
+          <div class="swap descSwap" aria-hidden="true">
+            <p class="desc default">
+              A quick one-time gift that helps kids build empathy, connection, and possibility.
+            </p>
+            <p class="desc hover">
+              Jump in now — scholarships, staff, and the wild places kids need.
+            </p>
+          </div>
+        </div>
+
+        <div class="ctaRow">
+          <span class="pill">Donate now <span aria-hidden="true">→</span></span>
+          <span class="sr-only">Opens the secure Neon donation form in a new tab.</span>
+        </div>
+      </div>
+    </a>
+
+    <!-- MONTHLY -->
+    <a
+      class="panel"
+      style="--bgimg: url('https://images.squarespace-cdn.com/content/v1/583f73fc3e00bebc1c9adc7f/04a4673f-bee5-4b24-8a58-00e1b45944bb/DSC00885%2B%281%29.jpg');"
+      href="https://campstompingground.org/monthly-giving"
+      aria-label="Become a monthly donor"
+    >
+      <span class="shade" aria-hidden="true"></span>
+
+      <div class="content">
+        <div class="copy">
+          <div class="label">Monthly <span class="dot" aria-hidden="true"></span></div>
+
+          <div class="swap titleSwap" aria-hidden="true">
+            <h1 class="title default">Give monthly.</h1>
+            <h1 class="title hover">Protect play.</h1>
+          </div>
+
+          <div class="swap descSwap" aria-hidden="true">
+            <p class="desc default">
+              Steady support that helps camp plan, say yes more often, and keep it accessible.
+            </p>
+            <p class="desc hover">
+              Join the protectors — small recurring gifts that keep camp thriving.
+            </p>
+          </div>
+        </div>
+
+        <div class="ctaRow">
+          <span class="pill">Become a monthly donor <span aria-hidden="true">→</span></span>
+          <span class="sr-only">Opens the Monthly Giving page.</span>
+        </div>
+      </div>
+    </a>
+  </main>
+
+  <script>
+    // Cursor-tracked aurora hotspot per panel.
+    // Updates CSS variables --mx/--my on the hovered panel only.
+    (function () {
+      const panels = Array.from(document.querySelectorAll(".panel"));
+      const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduceMotion) return;
+
+      function setPos(panel, clientX, clientY) {
+        const r = panel.getBoundingClientRect();
+        const x = Math.max(0, Math.min(1, (clientX - r.left) / r.width));
+        const y = Math.max(0, Math.min(1, (clientY - r.top) / r.height));
+        panel.style.setProperty("--mx", (x * 100).toFixed(2) + "%");
+        panel.style.setProperty("--my", (y * 100).toFixed(2) + "%");
+      }
+
+      panels.forEach(panel => {
+        panel.addEventListener("mousemove", (e) => setPos(panel, e.clientX, e.clientY));
+        panel.addEventListener("mouseenter", (e) => setPos(panel, e.clientX, e.clientY));
+        // For keyboard: center hotspot on focus if we don't have a cursor
+        panel.addEventListener("focus", () => {
+          panel.style.setProperty("--mx", "50%");
+          panel.style.setProperty("--my", "45%");
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
